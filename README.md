@@ -1,4 +1,7 @@
 # Mini C# Projects
 
-Here I do mini C# Projects from Karan's mini-project list. 
-I might create another repo in a different language.
+This is a repo where I put all of small exercises from Karan's mini project list. There will only be C# Code here. 
+
+## Acknowledgments
+
+* Karan's Project List - https://github.com/karan/Projects
