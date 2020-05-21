@@ -4,6 +4,12 @@ namespace FizzBuzz
 {
     class Program
     {
+        /*
+            Prints out numbers from 1 to 100
+            If the number is a multiple of 3, it will print Fizz
+            If the number is a multiple of 5, it will print Buzz
+            If the number is a multiple of both 3 and 5, it will print FizzBuzz
+        */
         static void Main(string[] args)
         {
             int length = 101;
@@ -21,7 +27,15 @@ namespace FizzBuzz
             // If a multiple of 3
             if (number % 3 == 0)
             {
-                return ("Fizz");
+                // If both multiple of 3 and 5
+                if (number % 5 == 0)
+                {
+                    return ("FizzBuzz");
+                }
+                else
+                {
+                    return ("Fizz");
+                }
             }
             // If a multiple of 5
             else if (number % 5 == 0)

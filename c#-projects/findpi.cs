@@ -4,6 +4,10 @@ namespace FindPi
 {
     class Program
     {
+        /*
+            Find pi to the amount of spaces the user wants
+            Has a limit of 15
+        */
         static void Main(string[] args)
         {
             Program program = new Program();
@@ -18,13 +22,11 @@ namespace FindPi
         {
             Console.WriteLine("Please type out how many places of PI you want. (Limit is 15)");
             string placeInput = Console.ReadLine();
-            
-            // Turn user input into string
+
             int maxSpaces = 15;
             int space;
             Int32.TryParse(placeInput, out space);
-            
-            // Check if userinput is past the limit
+
             if (space < maxSpaces)
             {
                 Render(space);
