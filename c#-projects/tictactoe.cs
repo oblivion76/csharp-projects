@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace TicTacToe
 {
@@ -6,46 +7,47 @@ namespace TicTacToe
     {
         static void Main(string[] args)
         {
-            bool gameOngoing = true;
-            string[,] board = NewBoard();           
+            bool gameStatus = true;
+            string player = "";
+            int round = 0;
 
-            RenderBoard(board);
+            string[,] board = NewBoard();
 
-            int[] moveCoords = GetMove();
-
-            while (!IsValidMove(board, moveCoords))
+            // Loop until game is over
+            while (gameStatus)
             {
-                Console.WriteLine("The spot is already taken! Try again");
+                // Find current player
+                round++;
+                if (round % 2 == 1)
+                    player = "X ";
+                else
+                    player = "O ";
+                
+                // Print the state of the board
+                Console.WriteLine("Round {0} {1}'s turn", round, player);
+                RenderBoard(board);
 
-                moveCoords = GetMove();
+                // Get the player move input
+                int[] moveCoords = GetMove();
+
+                // Make the move onto the board
+                board = MakeMove(board, moveCoords, player);
+
+                // Check for winner
+                if (GetWinner(board))
+                {
+                    Console.WriteLine("Winner!");
+                    gameStatus = false;
+                    break;
+                }                    
+
+                // If winner is not null, exit
+
+                // Board is full without winner, exit
+
+                // Repeat until game is over
+                Console.Clear();
             }
-
-            board = MakeMove(board, moveCoords, "X ");
-            RenderBoard(board);
-
-            #region While Loop
-            // Loop through every turn until game is over
-            // while (gameOngoing)
-            //{
-            // Find current player
-
-            // Print the state of the board
-
-            // Get the player move input
-
-            // Make the move onto the board
-
-            // Check for winner
-
-            // If winner is not null, exit
-
-            // Board is full without winner, exit
-
-            // Repeat until game is over
-
-
-            //}
-            #endregion
 
             Console.ReadLine();
         }
@@ -118,6 +120,13 @@ namespace TicTacToe
         // Put the move onto a new board
         static string[,] MakeMove(string[,] board, int[] coords, string player)
         {
+            while (!IsValidMove(board, coords))
+            {
+                Console.WriteLine("The spot is already taken! Try again");
+
+                coords = GetMove();
+            }
+
             board[coords[0], coords[1]] = player;
 
             return board;
@@ -130,6 +139,68 @@ namespace TicTacToe
                 return false;
             else
                 return true;
+        }
+
+        static bool GetWinner(string[,] board)
+        {
+            string[][,] allLineCoords = GetLineCoords(board);
+
+            for (int i = 0; i < allLineCoords.Length; i++)
+            {
+                for (int j = 0; j < allLineCoords[i].Length; j++)
+                {                   
+                    /*
+                    Cast<string> converts the string[,] array to an IEnumerable<string>
+                    Distinct gets the set of distinct elements in the list.
+                    Skip(1) ignores the first item from the previous set.
+                    Any returns true if there are any items in the previous set (after the one that was skipped)
+                    Finally, the result is negated with !. Note that this means the method will return true if the input array is empty.
+                    */
+                    if (!allLineCoords[i].Cast<string>().Distinct().Skip(0).Any())
+                        return true;                    
+                }
+            }
+            return false;
+        }   
+           
+        static string[][,] GetLineCoords(string[,] board)
+        {
+
+            string[,] rows = new string[3, 3];
+            string[,] columns = new string[3, 3];
+            string[,] diagonals = new string[2, 3];
+
+            string[][,] allCoords = { rows, columns, diagonals };
+
+            // Rows
+            for (int i = 0; i < board.GetLength(0); i++)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    rows[i, j] = board[i, j];
+                }
+            }
+
+            // Columns
+            for (int k = 0; k < board.GetLength(0); k++)
+            {
+                for (int l = 0; l < board.GetLength(1); l++)
+                {
+                    columns[l, k] = board[l, k];
+                }
+            }
+
+            #region diagonals
+            // Diagonals
+            diagonals[0, 0] = board[0, 0];
+            diagonals[0, 1] = board[1, 1];
+            diagonals[0, 2] = board[2, 2];
+            diagonals[1, 0] = board[2, 0];
+            diagonals[1, 1] = board[1, 1];
+            diagonals[1, 2] = board[0, 2];
+            #endregion
+
+            return allCoords;
         }
     }
 }
