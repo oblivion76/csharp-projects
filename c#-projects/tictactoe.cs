@@ -6,46 +6,48 @@ namespace TicTacToe
     {
         static void Main(string[] args)
         {
-            bool gameOngoing = true;
-            string[,] board = NewBoard();           
+            bool gameStatus = true;
+            string player = "";
+            int round = 0;
 
-            RenderBoard(board);
+            string[,] board = NewBoard();
 
-            int[] moveCoords = GetMove();
-
-            while (!IsValidMove(board, moveCoords))
+            // Loop until game is over
+            while (gameStatus)
             {
-                Console.WriteLine("The spot is already taken! Try again");
+                // Find current player
+                round++;
+                if (round % 2 == 1)
+                    player = "X ";
+                else
+                    player = "O ";
+                
+                // Print the state of the board
+                Console.WriteLine("Round {0} {1}'s turn", round, player);
+                RenderBoard(board);
 
-                moveCoords = GetMove();
+                // Get the player move input
+                int[] moveCoords = GetMove();
+
+                // Make the move onto the board
+                board = MakeMove(board, moveCoords, player);
+
+                // Check for winner
+                if (GetWinner(board))
+                {
+                    Console.WriteLine("{0} has won!", player);
+                    RenderBoard(board);
+                    gameStatus = false;
+                    break;
+                }                    
+
+                // If winner is not null, exit
+
+                // Board is full without winner, exit
+
+                // Repeat until game is over
+                Console.Clear();
             }
-
-            board = MakeMove(board, moveCoords, "X ");
-            RenderBoard(board);
-
-            #region While Loop
-            // Loop through every turn until game is over
-            // while (gameOngoing)
-            //{
-            // Find current player
-
-            // Print the state of the board
-
-            // Get the player move input
-
-            // Make the move onto the board
-
-            // Check for winner
-
-            // If winner is not null, exit
-
-            // Board is full without winner, exit
-
-            // Repeat until game is over
-
-
-            //}
-            #endregion
 
             Console.ReadLine();
         }
@@ -118,6 +120,13 @@ namespace TicTacToe
         // Put the move onto a new board
         static string[,] MakeMove(string[,] board, int[] coords, string player)
         {
+            while (!IsValidMove(board, coords))
+            {
+                Console.WriteLine("The spot is already taken! Try again");
+
+                coords = GetMove();
+            }
+
             board[coords[0], coords[1]] = player;
 
             return board;
@@ -131,5 +140,55 @@ namespace TicTacToe
             else
                 return true;
         }
+
+        // Check for winner
+        static bool GetWinner(string[,] board)
+        {
+            // Rows
+            for (int i = 0; i < board.GetLength(0); i++)
+            {
+                if (board[i, 0] != "  ")
+                {
+                    if (board[i, 0] == board[i, 1])
+                    {
+                        if (board[i, 0] == board[i, 2])
+                            return true;
+                    }
+                }                
+            }
+
+            // Columns
+            for (int j = 0; j < board.GetLength(1); j++)
+            {
+                if (board[0, j] != "  ")
+                {
+                    if (board[0, j] == board[1, j])
+                    {
+                        if (board[0, j] == board[2, j])
+                            return true;
+                    }
+                }               
+            }
+
+            // Diagonals
+            if (board[0, 0] != "  ")
+            {
+                if (board[0, 0] == board[2, 2])
+                {
+                    if (board[0, 0] == board[1, 1])
+                        return true;
+                }
+            }
+            if (board[2, 0] != "  ")
+            {
+                if (board[2, 0] == board[0, 2])
+                {
+                    if (board[2, 0] == board[1, 1])
+                        return true;
+                }
+            }
+
+            return false;
+        }   
     }
 }
