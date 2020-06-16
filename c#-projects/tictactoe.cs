@@ -10,6 +10,9 @@ namespace TicTacToe
             string player = "";
             int round = 0;
 
+            Console.Title = "Tic Tac Toe!";
+            Console.WindowWidth = 50;
+
             string[,] board = NewBoard();
 
             // Loop until game is over
@@ -23,7 +26,7 @@ namespace TicTacToe
                     player = "O ";
                 
                 // Print the state of the board
-                Console.WriteLine("Round {0} {1}'s turn", round, player);
+                Console.WriteLine("Round {0} {1} turn", round, player);               
                 RenderBoard(board);
 
                 // Get the player move input
@@ -33,23 +36,33 @@ namespace TicTacToe
                 board = MakeMove(board, moveCoords, player);
 
                 // Check for winner
+                // If winner is not null, exit
                 if (GetWinner(board))
                 {
-                    Console.WriteLine("{0} has won!", player);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("{0}has won!", player);
+                    Console.ForegroundColor = ConsoleColor.White;
                     RenderBoard(board);
                     gameStatus = false;
                     break;
                 }                    
 
-                // If winner is not null, exit
-
                 // Board is full without winner, exit
+                if (GetDraw(board))
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Nice Try! But it is a draw!");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    RenderBoard(board);
+                    gameStatus = false;
+                    break;
+                }
 
                 // Repeat until game is over
                 Console.Clear();
             }
 
-            Console.ReadLine();
+            Console.ReadKey();
         }
 
         // Generate an empty board
@@ -71,6 +84,7 @@ namespace TicTacToe
             int length = board.GetLength(0);
             int width = board.GetLength(1);
 
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(" X 0 1 2");
             Console.WriteLine("Y  ------");
 
@@ -85,6 +99,7 @@ namespace TicTacToe
             }
 
             Console.WriteLine("   ------");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         // Get the move from the player
@@ -98,7 +113,9 @@ namespace TicTacToe
             // If number is not valid
             while (!Int32.TryParse(resultX, out moveCoords[1]))
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Not a valid number, try again.");
+                Console.ForegroundColor = ConsoleColor.White;
 
                 resultX = Console.ReadLine();
             }
@@ -109,7 +126,9 @@ namespace TicTacToe
             // If number is not valid
             while (!Int32.TryParse(resultY, out moveCoords[0]))
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Not a valid number, try again.");
+                Console.ForegroundColor = ConsoleColor.White;
 
                 resultY = Console.ReadLine();
             }
@@ -122,7 +141,9 @@ namespace TicTacToe
         {
             while (!IsValidMove(board, coords))
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("The spot is already taken! Try again");
+                Console.ForegroundColor = ConsoleColor.White;
 
                 coords = GetMove();
             }
@@ -190,5 +211,16 @@ namespace TicTacToe
 
             return false;
         }   
+
+        static bool GetDraw(string[,] board)
+        {
+            foreach (string value in board)
+            {
+                if (value == "  ")
+                    return false;
+            }
+
+            return true;
+        }
     }
 }
