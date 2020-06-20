@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Snake
 {
@@ -21,7 +22,7 @@ namespace Snake
                 if (game.snake.CheckForCollision(game))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Game Over!");
+                    Console.WriteLine("Game Over! Score: {0}", game.Score);
                     gameStatus = false;
                     break;
                 }
@@ -32,11 +33,12 @@ namespace Snake
             Console.ReadKey();
         }
 
+        // Check where player wants to move
         static void CheckInput(Game game)
         {
             string DirectionInput = Console.ReadLine();
 
-            switch (DirectionInput)
+            switch (DirectionInput.ToUpper())
             {
                 case "W":
                     game.snake.Direction = game.Up;
@@ -61,6 +63,8 @@ namespace Snake
         public int Width { get; set; }
         public int Height { get; set; }
 
+        public int Score { get; set; }
+
         #region Directions
 
         public (int, int) Up = (-1, 0);
@@ -75,15 +79,19 @@ namespace Snake
         #endregion
 
         public Snake snake { get; set; }
+        public Apple apple { get; set; }
 
+        // Set the size of the board and 
         public Game(int height, int width)
         {
             Height = height;
             Width = width;
 
             snake = new Snake(Initialize(), Up);
+            apple = new Apple(this);
         }
 
+        // Create empty board
         public string[][] CreateBoard()
         {
             string[][] boardMatrix = new string[Height][];
@@ -101,6 +109,8 @@ namespace Snake
             return boardMatrix;
         }
 
+        // Render the board while checking 
+        // which squares has the snake and apple
         public void Render()
         {
             string[][] boardMatrix = CreateBoard();
@@ -129,8 +139,20 @@ namespace Snake
                                 boardMatrix[i][j] = "O";       
                         }
                     }
+
+                    if ((i, j) == apple.ApplePos)
+                    {
+                        boardMatrix[i][j] = "*";
+                    }
+
                     if (boardMatrix[i][j] == null)
                         Console.Write(" ");
+                    else if (boardMatrix[i][j] == "*")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(boardMatrix[i][j]);
+                        Console.ForegroundColor = ConsoleColor.Green;
+                    }
                     else
                     {
                         Console.Write(boardMatrix[i][j]);
@@ -146,6 +168,7 @@ namespace Snake
             Console.ForegroundColor = ConsoleColor.White;
         }
 
+        // Create horizontal border
         public void HorizontalBorder()
         {
             Console.Write("+");
@@ -156,6 +179,7 @@ namespace Snake
             Console.WriteLine("+");
         }
 
+        // Set Snake coords
         public (int, int)[] Initialize()
         {
             var SnakeCoordinates = new (int x, int y)[]
@@ -178,12 +202,14 @@ namespace Snake
         public (int, int)[] SnakePos { get; set; }
         public (int, int) Direction { get; set; }
 
+        // Create the Snake Position
         public Snake((int, int)[] snakePos, (int, int) direction)
         {
             SnakePos = snakePos;
             Direction = direction;
         }        
 
+        // Move the Snake Coords
         public void TakeStep((int, int) position)
         {
             for (int i = SnakePos.Length - 1; i > 0; i--)
@@ -191,21 +217,25 @@ namespace Snake
             SnakePos[0] = position;
         }
 
+        // Set the direction property
         public void SetDirection((int, int) direction)
         {
             Direction = direction;
         }
 
+        // Get the head of the snake
         public (int, int) Head()
         {
             return SnakePos[0];
         }
 
+        // Calculate the position to move to
         public (int, int) PositionToMove()
         {
             return (Head().Item1 + Direction.Item1, Head().Item2 + Direction.Item2);
         }
 
+        // Check if the snake collides with something
         public bool CheckForCollision(Game game)
         {
             int i = 0;
@@ -228,6 +258,14 @@ namespace Snake
             else if (Head().Item2 > game.Width - 1)
                 return true;
 
+            if (Head() == game.apple.ApplePos)
+            {
+                (int, int) tail = (game.snake.SnakePos[^1].Item1 + 1, game.snake.SnakePos[^1].Item2);
+
+                game.Score++;
+                game.apple.Generate();
+                SnakePos = SnakePos.Append(tail).ToArray();
+            }
 
             return false;
         }
@@ -235,6 +273,25 @@ namespace Snake
 
     class Apple
     {
+        public (int, int) ApplePos { get; set; }
 
+        Game game;
+
+        // Get the game class started
+        public Apple(Game gameClass)
+        {
+            game = gameClass;
+        }
+
+        // Generate random apple location
+        public void Generate()
+        {
+            Random random = new Random();
+
+            int x = random.Next(0, game.Height);
+            int y = random.Next(0, game.Width);
+
+            ApplePos = (x, y);
+        }
     }
 }
